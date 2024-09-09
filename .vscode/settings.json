@@ -1,5 +1,9 @@
 {
     "files.associations": {
-        "vector": "cpp"
+        "vector": "cpp",
+        "xtr1common": "cpp",
+        "xutility": "cpp",
+        "xmemory": "cpp",
+        "initializer_list": "cpp"
     }
 }
