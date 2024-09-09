@@ -20,58 +20,64 @@ private:
     class base_iterator{
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using pointer_type = typename std::conditional<IsConst, const T*, T*>::type;
-        // using pointer_type = T*;
-        using reference_type = typename std::conditional<IsConst, const T&, T&>::type;
-        // using reference_type = T&;
+        using pointer = typename std::conditional<IsConst, const T*, T*>::type;
+        using reference = typename std::conditional<IsConst, const T&, T&>::type;
         using value_type = T;
+        using difference_type = std::ptrdiff_t;
 
     private:
-        pointer_type ptr;
+        pointer ptr;
 
     public:
-        base_iterator(pointer_type ptr): ptr(ptr) {}
+        base_iterator(pointer ptr): ptr(ptr) {}
         base_iterator(const base_iterator&) = default;
         base_iterator& operator=(const base_iterator&) = default;
 
-        reference_type operator*() { return *ptr; }
-        pointer_type operator->() { return ptr; }
+        reference operator*() noexcept { return *ptr; }
+        pointer operator->() noexcept { return ptr; }
 
-        reference_type operator+(int val) {
+        base_iterator operator+(size_t val) noexcept {
             ptr += val;
             return *this; 
         }
-        reference_type operator-(int val) { 
+        base_iterator operator-(size_t val) noexcept { 
             ptr -= val;
             return *this; 
         }
 
-        reference_type operator++() { 
+        base_iterator operator++() noexcept { 
             ++ptr;
-            return ptr; 
+            return *this; 
         }
-        reference_type operator++(int) {
+        base_iterator operator++(int) noexcept {
             base_iterator copy = *this;
             ++ptr;
             return copy;
         }
-        reference_type operator--() { 
+        base_iterator operator--() noexcept { 
             --ptr;
-            return ptr; 
+            return *this; 
         }
-        reference_type operator--(int) { 
+        base_iterator operator--(int) noexcept { 
             base_iterator copy = *this;
             --ptr;
             return copy; 
         }
 
-        reference_type operator+=(int val) { 
+        base_iterator operator+=(int val) noexcept { 
             ptr += val;
             return *this; 
         }
-        reference_type operator-=(int val) { 
+        base_iterator operator-=(int val) noexcept { 
             ptr -= val;
             return *this; 
+        }
+
+        bool operator==(const base_iterator& it) const noexcept { 
+            return ptr == it.ptr; 
+        }
+        bool operator!=(const base_iterator& it) const noexcept {
+            return !(*this == it.ptr);  
         }
     };
 
@@ -103,10 +109,10 @@ public:
     //constructors
     explicit my_vector() noexcept(noexcept(Allocator()));
     explicit my_vector(const Allocator& alloc) noexcept;
-    my_vector(  size_t count, 
+    my_vector(  int count, 
                 const T& value, 
                 const Allocator& alloc = Allocator() );
-    my_vector(  size_t count,
+    my_vector(  int count,
                 const Allocator& alloc = Allocator() );
     my_vector(  const my_vector& other);
     my_vector(  const my_vector& other,
@@ -116,8 +122,8 @@ public:
                 const Allocator& alloc);
     my_vector(  std::initializer_list<T> init,
                 const Allocator& alloc = Allocator() );
-    template<typename InputIt>
-    my_vector(  InputIt first, InputIt last,
+    template<typename It>
+    my_vector(  It first, It last,
                 const Allocator& alloc = Allocator() );
 
     //functions
@@ -154,10 +160,10 @@ my_vector<T, Allocator>::my_vector(const Allocator &alloc) noexcept :   arr_(nul
                                                                         ,alloc_(alloc){}
 
 template <typename T, typename Allocator>
-my_vector<T, Allocator>::my_vector(size_t count, const T &value, const Allocator &alloc) :  arr_(nullptr)
-                                                                                            ,sz_(count)
-                                                                                            ,cap_(count)
-                                                                                            ,alloc_(alloc)
+my_vector<T, Allocator>::my_vector(int count, const T &value, const Allocator &alloc) : arr_(nullptr)
+                                                                                        ,sz_(count)
+                                                                                        ,cap_(count)
+                                                                                        ,alloc_(alloc)
 {
     if(!count) { return; }
     arr_ = alloc_.allocate(count);
@@ -179,4 +185,47 @@ my_vector<T, Allocator>::my_vector(size_t count, const T &value, const Allocator
         alloc_.deallocate(arr_, count);
         throw std::bad_alloc();
     }
+}
+
+template <typename T, typename Allocator>
+my_vector<T, Allocator>::my_vector(int count, const Allocator &alloc)
+{
+
+}
+
+template <typename T, typename Allocator>
+my_vector<T, Allocator>::my_vector(const my_vector &other)
+{
+
+}
+
+template <typename T, typename Allocator>
+my_vector<T, Allocator>::my_vector(const my_vector &other, const Allocator &alloc)
+{
+
+}
+
+template <typename T, typename Allocator>
+my_vector<T, Allocator>::my_vector(my_vector &&move_other)
+{
+
+}
+
+template <typename T, typename Allocator>
+my_vector<T, Allocator>::my_vector(my_vector &&move_other, const Allocator &alloc)
+{
+
+}
+
+template <typename T, typename Allocator>
+my_vector<T, Allocator>::my_vector(std::initializer_list<T> init, const Allocator &alloc)
+{
+
+}
+
+template <typename T, typename Allocator>
+template <typename It>
+my_vector<T, Allocator>::my_vector(It first, It last, const Allocator &alloc)
+{
+    
 }
