@@ -11,10 +11,10 @@ template<typename T,
          typename Allocator = std::allocator<T>
 >class my_vector{
 private:
-    T* arr_ = nullptr;
+    T* arr_;
     Allocator alloc_;
-    size_t sz_ = 0;
-    size_t cap_ = 0;
+    size_t sz_;
+    size_t cap_;
 private:
     template<bool IsConst>
     class base_iterator{
@@ -77,15 +77,26 @@ public:
     //iterators
     using iterator = base_iterator<false>;
     using const_iterator = base_iterator<true>;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-    iterator begin() { return iterator(arr_); }
-    iterator end() { return iterator(arr_+sz_); }
+    iterator begin() noexcept { return iterator(arr_); }
+    iterator end() noexcept { return iterator(arr_+sz_); }
 
-    const_iterator begin() const { return const_iterator(arr_); }
-    const_iterator end() const { return const_iterator(arr_+sz_); }
+    const_iterator begin() const noexcept { return const_iterator(arr_); }
+    const_iterator end() const noexcept { return const_iterator(arr_+sz_); }
 
-    const_iterator cbegin() const { return const_iterator(arr_); }
-    const_iterator cend() const { return const_iterator(arr_+sz_); }
+    const_iterator cbegin() const noexcept { return const_iterator(arr_); }
+    const_iterator cend() const noexcept { return const_iterator(arr_+sz_); }
+
+    reverse_iterator rbegin() noexcept { return reverse_iterator(arr_+sz_-1); }
+    reverse_iterator rend() noexcept { return reverse_iterator(arr_-1); }
+
+    const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(arr_+sz_-1); }
+    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(arr_-1); }
+
+    const_reverse_iterator crbegin() const noexcept { return const_reverse_iterator(arr_+sz_-1); }
+    const_reverse_iterator crend() const noexcept { return const_reverse_iterator(arr_-1); }
 
     //constructors
     explicit my_vector() noexcept(noexcept(Allocator()));
@@ -107,19 +118,10 @@ public:
     my_vector(  InputIt first, InputIt last,
                 const Allocator& alloc = Allocator() );
 
-    /*constructors from base_iterators
-    *
-    */
-
     //functions
-    
-
+    //void push
 
     //operators
-    bool operator<(const my_vector& b) = delete;
-    bool operator>(const my_vector& b) = delete;
-    bool operator<=(const my_vector& b) = delete;
-    bool operator>=(const my_vector& b) = delete;
 
     bool operator==(const my_vector& b);
     bool operator!=(const my_vector& b) { return !(*this != b); }
@@ -128,5 +130,51 @@ public:
     my_vector& operator[](size_t pos) const { return arr_[pos]; }
 
     //destructor
-    ~my_vector();
+    ~my_vector(){
+        for (size_t i = 0; i < sz_; ++i)
+        {
+            alloc_.destroy(arr_+i);
+            (arr_+i)->~T();
+        }
+        alloc_.deallocate(arr_, cap_);
+    }
 };
+
+template <typename T, typename Allocator>
+my_vector<T, Allocator>::my_vector() noexcept(noexcept(Allocator())) :  arr_(nullptr)
+                                                                        ,sz_(0)
+                                                                        ,cap_(0){}
+
+template <typename T, typename Allocator>
+my_vector<T, Allocator>::my_vector(const Allocator &alloc) noexcept :   arr_(nullptr)
+                                                                        ,sz_(0)
+                                                                        ,cap_(0)
+                                                                        ,alloc_(alloc){}
+
+template <typename T, typename Allocator>
+my_vector<T, Allocator>::my_vector(size_t count, const T &value, const Allocator &alloc) :  arr_(nullptr)
+                                                                                            ,sz_(count)
+                                                                                            ,cap_(count)
+                                                                                            ,alloc_(alloc)
+{
+    if(count) { return; }
+    arr_ = alloc_.allocate(count);
+    size_t index = 0;
+    try
+    {
+        for (size_t index = 0; index < count; ++index)
+        {
+            alloc_.construct(arr_+index, value);
+        }
+    }
+    catch(...)
+    {
+        for (size_t oldindex = 0; oldindex < index; ++oldindex)
+        {
+            alloc_.destroy(arr_+oldindex);
+            (arr_+oldindex)->~T();
+        }
+        alloc_.deallocate(arr_, count);
+        throw std::bad_alloc();
+    }
+}
