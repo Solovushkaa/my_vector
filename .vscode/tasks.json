@@ -5,7 +5,7 @@
             "label": "C/C++: g++.exe сборка активного файла",
             "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
             "args": [
-                //"-std=c++17",
+                "-std=c++17",
                 "-fdiagnostics-color=always",
                 "-g",
                 //"-fsanitize=address",

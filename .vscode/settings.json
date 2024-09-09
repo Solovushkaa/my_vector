@@ -4,6 +4,8 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "xmemory": "cpp",
-        "initializer_list": "cpp"
+        "initializer_list": "cpp",
+        "format": "cpp",
+        "xstring": "cpp"
     }
 }

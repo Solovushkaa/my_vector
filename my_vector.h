@@ -20,8 +20,10 @@ private:
     class base_iterator{
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using pointer_type = std::conditional<IsConst, const T*, T*>;
-        using reference_type = std::conditional<IsConst, const T&, T&>;
+        using pointer_type = typename std::conditional<IsConst, const T*, T*>::type;
+        // using pointer_type = T*;
+        using reference_type = typename std::conditional<IsConst, const T&, T&>::type;
+        // using reference_type = T&;
         using value_type = T;
 
     private:
@@ -157,7 +159,7 @@ my_vector<T, Allocator>::my_vector(size_t count, const T &value, const Allocator
                                                                                             ,cap_(count)
                                                                                             ,alloc_(alloc)
 {
-    if(count) { return; }
+    if(!count) { return; }
     arr_ = alloc_.allocate(count);
     size_t index = 0;
     try
