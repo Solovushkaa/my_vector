@@ -11,9 +11,9 @@ int main(){
     it = it + 4;
     *it = 8;
     std::cout << *(mv.begin()) << "\n";
-    for (auto x : mv)
+    my_vector<int> copy_mv(mv);
+    for (auto x : copy_mv)
     {
         std::cout << x << ' ';
     }
-    
 }
